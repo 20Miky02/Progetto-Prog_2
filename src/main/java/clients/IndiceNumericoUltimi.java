@@ -21,4 +21,38 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class IndiceNumericoUltimi {}
+import mole.IndexNumerico;
+import java.util.Scanner;
+
+public class IndiceNumericoUltimi {
+    private IndiceNumericoUltimi() {}
+
+    public static void main(String[] args) {
+        if (args.length != 3) {
+            throw new IllegalArgumentException("Specificare inizio, fine e passo come argomenti da linea di comando.");
+        }
+
+        int start = Integer.parseInt(args[0]);
+        int end   = Integer.parseInt(args[1]);
+        int step  = Integer.parseInt(args[2]);
+
+        IndexNumerico index = new IndexNumerico(null, start, end, step);
+
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (scanner.hasNextInt()) {
+                int N = scanner.nextInt();
+                if (N <= 0) continue;
+
+                int size = index.size();
+                int begin = Math.max(0, size - N);
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = begin; i < size; i++) {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(index.getLabelAt(i));
+                }
+                System.out.println(sb);
+            }
+        }
+    }
+}

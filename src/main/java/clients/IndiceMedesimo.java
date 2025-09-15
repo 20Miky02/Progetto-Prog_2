@@ -21,4 +21,40 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class IndiceMedesimo {}
+import utils.InputParsing;
+import mole.Index;
+import mole.IndexObject;
+
+import java.util.List;
+import java.util.Scanner;
+
+public class IndiceMedesimo {
+    private IndiceMedesimo() {}
+
+    public static void main(String[] args) {
+        try (Scanner s = new Scanner(System.in)) {
+            while (s.hasNextLine()) {
+                String desc1Line = s.nextLine();
+                if (desc1Line.isEmpty()) break;
+                InputParsing.IndexDescriptor desc1 = (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(desc1Line);
+                if (desc1 == null) break;
+
+                String values1Line = s.nextLine();
+                Object[] values1 = InputParsing.parseValues(values1Line, desc1.len());
+                Index index1 = new IndexObject(List.of(values1), desc1.name());
+
+                if (!s.hasNextLine()) break;
+                String desc2Line = s.nextLine();
+                InputParsing.IndexDescriptor desc2 = (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(desc2Line);
+                if (desc2 == null) break;
+
+                if (!s.hasNextLine()) break;
+                String values2Line = s.nextLine();
+                Object[] values2 = InputParsing.parseValues(values2Line, desc2.len());
+                Index index2 = new IndexObject(List.of(values2), desc2.name());
+
+                System.out.println(index1.equals(index2));
+            }
+        }
+    }
+}

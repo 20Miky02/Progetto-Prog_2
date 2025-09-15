@@ -21,4 +21,33 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class IndiceFusione {}
+import utils.InputParsing;
+import mole.Index;
+import mole.IndexObject;
+import java.util.Scanner;
+import java.util.List;
+
+public class IndiceFusione {
+    private IndiceFusione() {}
+
+    public static void main(String[] args) {
+        try (Scanner s = new Scanner(System.in)) {
+            while (s.hasNextLine()) {
+                InputParsing.IndexDescriptor desc1 = (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(s.nextLine());
+                Object[] values1 = InputParsing.parseValues(s.nextLine(), desc1.len());
+                List<Object> labels1 = List.of(values1);
+
+                if (!s.hasNextLine()) break;
+                InputParsing.IndexDescriptor desc2 = (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(s.nextLine());
+                Object[] values2 = InputParsing.parseValues(s.nextLine(), desc2.len());
+                List<Object> labels2 = List.of(values2);
+
+                Index index1 = new IndexObject(labels1, desc1.name());
+                Index index2 = new IndexObject(labels2, desc2.name());
+
+                Index mergedIndex = index1.merge(index2,desc1.name());
+                System.out.println(mergedIndex);
+            }
+        }
+    }
+}

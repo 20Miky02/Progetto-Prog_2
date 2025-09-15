@@ -21,4 +21,36 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class ColonnaValore {}
+import utils.InputParsing;
+import utils.InputParsing.ColumnDescriptor;
+import utils.InputParsing.IndexDescriptor;
+
+import java.util.Scanner;
+
+public class ColonnaValore {
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            throw new IllegalArgumentException("Errore: Specificare l'etichetta da cercare come argomento.");
+        }
+
+        String targetLabel = args[0];
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine().trim();
+        ColumnDescriptor column = (ColumnDescriptor) InputParsing.parseDescriptor(line);
+        line = scanner.nextLine().trim();
+        IndexDescriptor index = (IndexDescriptor) InputParsing.parseDescriptor(line);
+        line = scanner.nextLine().trim();
+        Object[] labels = InputParsing.parseValues(line, index.len());
+        line = scanner.nextLine().trim();
+        Object[] values = InputParsing.parseValues(line, column.rows());
+        for (int i = 0; i < labels.length; i++) {
+            if (labels[i].toString().equals(targetLabel)) {
+                System.out.println(values[i]);
+                return;
+            }
+        }
+        System.err.println("Etichetta non trovata: " + targetLabel);
+        System.exit(2);
+    }
+}

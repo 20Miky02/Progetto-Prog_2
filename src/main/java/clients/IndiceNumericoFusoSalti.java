@@ -21,4 +21,57 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class IndiceNumericoFusoSalti {}
+import mole.IndexNumerico;
+import mole.IndexObject;
+import utils.InputParsing;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class IndiceNumericoFusoSalti {
+
+    private IndiceNumericoFusoSalti() {}
+
+    public static void main(String[] args) {
+        if (args.length != 4) {
+            throw new IllegalArgumentException("Specificare inizio, fine, passo e salto come argomenti da linea di comando.");
+        }
+        int start = Integer.parseInt(args[0]);
+        int end = Integer.parseInt(args[1]);
+        int step = Integer.parseInt(args[2]);
+        int salto = Integer.parseInt(args[3]);
+        if (salto <= 0) {
+            throw new IllegalArgumentException("Specificare inizio, fine, passo e salto come argomenti da linea di comando.");
+        }
+        IndexNumerico firstIndex = new IndexNumerico(null, start, end, step);
+        IndexObject secondIndex = null;
+        try (Scanner scanner = new Scanner(System.in)) {
+            if (scanner.hasNextLine()) {
+                InputParsing.IndexDescriptor descriptor =
+                        (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(scanner.nextLine());
+                if (descriptor != null && scanner.hasNextLine()) {
+                    List<Object> labels =
+                            List.of(InputParsing.parseValues(scanner.nextLine(), descriptor.len()));
+                    secondIndex = new IndexObject(labels, descriptor.name());
+                }
+            }
+        }
+        if (secondIndex == null) {
+            throw new IllegalArgumentException("Impossibile leggere il secondo indice dall'input.");
+        }
+        List<Object> output = new ArrayList<>();
+        int sizeNum = firstIndex.size();
+        for (int pos = 0; pos < sizeNum; pos += salto) {
+            output.add(firstIndex.getLabelAt(pos));
+        }
+        int startSecond = 0;
+        int posInMerged = sizeNum;
+        for (Object lbl : secondIndex) {
+            if ((posInMerged - startSecond) % salto == 0) {
+                output.add(lbl);
+            }
+            posInMerged++;
+        }
+        System.out.println(String.join(", ", output.stream().map(Object::toString).toList()));
+    }
+}

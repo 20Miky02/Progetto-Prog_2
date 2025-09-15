@@ -21,4 +21,27 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class IndiceNumerico {}
+import mole.IndexNumerico;
+import java.util.Scanner;
+
+public class IndiceNumerico {
+    private IndiceNumerico() {}
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            throw new IllegalArgumentException("Inserire numero corretto di argomenti.");
+        }
+
+        int step = Integer.parseInt(args[0]);
+
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (scanner.hasNext()) {
+                int start = scanner.nextInt();
+                int end = scanner.nextInt();
+
+                IndexNumerico index = new IndexNumerico(null, start, end, step);
+                System.out.println(index);
+            }
+        }
+    }
+}

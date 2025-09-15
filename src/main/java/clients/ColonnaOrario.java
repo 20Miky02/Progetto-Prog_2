@@ -21,4 +21,70 @@ along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
 package clients;
 
-public class ColonnaOrario {}
+import mole.*;
+import utils.InputParsing;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class ColonnaOrario {
+    private ColonnaOrario() {}
+
+    public static void main(String[] args) {
+        try (Scanner s = new Scanner(System.in)) {
+            Column<LocalDateTime> column = readDateTimeColumn(s);
+            Column<LocalTime> timeColumn = column.map(new TimeExtractor());
+            System.out.print(timeColumn);
+
+        }
+    }
+
+    private static Column<LocalDateTime> readDateTimeColumn(Scanner scanner) {
+        if (!scanner.hasNextLine()) {
+            throw new IllegalArgumentException("Input vuoto: atteso descrittore colonna");
+        }
+        String line = scanner.nextLine().trim();
+        InputParsing.ColumnDescriptor cd =
+                (InputParsing.ColumnDescriptor) InputParsing.parseDescriptor(line);
+        if (cd == null) {
+            throw new IllegalArgumentException("Descrittore colonna non valido: " + line);
+        }
+
+        if (!scanner.hasNextLine()) {
+            throw new IllegalArgumentException("Input incompleto: attesa riga successiva dopo descrittore colonna");
+        }
+        String nextLine = scanner.nextLine().trim();
+        InputParsing.IndexDescriptor indexDescriptor =
+                (InputParsing.IndexDescriptor) InputParsing.parseDescriptor(nextLine);
+
+        Index columnIndex;
+        Object[] rawValues;
+        if (indexDescriptor == null) {
+            columnIndex = new IndexNumerico(null, 0, cd.rows(), 1);
+            rawValues = InputParsing.parseValues(nextLine, cd.rows());
+        } else {
+            if (!scanner.hasNextLine()) {
+                throw new IllegalArgumentException("Input incompleto: attese etichette indice");
+            }
+            Object[] labels = InputParsing.parseValues(scanner.nextLine(), indexDescriptor.len());
+            columnIndex = new IndexObject(Arrays.asList(labels), indexDescriptor.name());
+
+            if (!scanner.hasNextLine()) {
+                throw new IllegalArgumentException("Input incompleto: attesi valori colonna");
+            }
+            rawValues = InputParsing.parseValues(scanner.nextLine(), cd.rows());
+        }
+        LocalDateTime[] dateTimeValues = new LocalDateTime[rawValues.length];
+        for (int i = 0; i < rawValues.length; i++) {
+            if (rawValues[i] == null) {
+                dateTimeValues[i] = null;
+            } else if (rawValues[i] instanceof LocalDateTime) {
+                dateTimeValues[i] = (LocalDateTime) rawValues[i];
+            } else {
+                throw new IllegalArgumentException("Valore non convertibile a LocalDateTime alla posizione " + i + ": " + rawValues[i] + " (tipo: " + rawValues[i].getClass().getSimpleName() + ")");
+            }
+        }
+        return new Column<>(Arrays.asList(dateTimeValues), columnIndex, cd.name());
+    }
+}
